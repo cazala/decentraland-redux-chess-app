@@ -1,0 +1,27 @@
+{
+  "display": {
+    "title": "Chess"
+  },
+  "owner": "0x0DE1eC708665B93478bd0Ed264e60B68A8663Bb4",
+  "contact": {
+    "name": "cazala",
+    "email": "juan@decentraland.org"
+  },
+  "scene": {
+    "parcels": [
+      "23,-23"
+    ],
+    "base": "23,-23"
+  },
+  "communications": {
+    "type": "webrtc",
+    "signalling": "https://rendezvous.decentraland.org"
+  },
+  "policy": {
+    "fly": true,
+    "voiceEnabled": true,
+    "blacklist": [],
+    "teleportPosition": "0,0,0"
+  },
+  "main": "ws://localhost:8087"
+}
