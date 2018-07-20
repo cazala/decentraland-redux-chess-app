@@ -1,9 +1,10 @@
 import RemoteScene from './RemoteScene'
+import store from './Store'
 
 export const connectedClients: Set<RemoteScene> = new Set()
 
-export function updateAll() {
+store.subscribe(() => {
   connectedClients.forEach(function each(client) {
     client.forceUpdate()
   })
-}
+})
