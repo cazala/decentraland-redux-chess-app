@@ -73,6 +73,7 @@ export const king = (x, y, white, board) => {
 
 // helper decorator function that moves squares to coords for inputs and vice-versa for outputs.
 const stateToLogicMap = (calc, color, board) => square => {
+  if (!calc) return []
   let { x, y } = toCoord(square)
   let coords = calc(x, y, color === WHITE, board)
   coords = coords.filter(c => {
