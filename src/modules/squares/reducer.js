@@ -1,5 +1,5 @@
 /* Main reducer of chess app.  Handles adding/removing/highlighting/selecting of pieces or squares.  */
-import { initBoard, toState, NO_PIECE_ID, WHITE, BLACK } from '~/chess/board';
+import { initBoard, toState, NO_PIECE_ID, WHITE, BLACK } from '../../chess/board';
 import { HIGHLIGHT_SQUARE, 
   SELECT_SQUARE, 
   CHECK_SQUARE, 

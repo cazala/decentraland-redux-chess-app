@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {initSquares, squareClick} from '~/modules/squares/actions';
+import {initSquares, squareClick} from '../modules/squares/actions';
 import {Square} from './Square';
 
 export class Board extends React.Component {

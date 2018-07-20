@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import { groupMovesByColor } from '~/modules/game/selectors';
+import { groupMovesByColor } from '../modules/game/selectors';
 
 // display a table of moves, in move notation.
 export const Moves = (props) => {

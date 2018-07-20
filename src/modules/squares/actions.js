@@ -1,4 +1,4 @@
-import { BLACK, WHITE } from '~/chess/board';
+import { BLACK, WHITE } from '../../chess/board';
 
 export const SQUARE_CLICK = 'chess/squares/square_click';
 export const HIGHLIGHT_SQUARE = 'chess/squares/hightlight_square';
