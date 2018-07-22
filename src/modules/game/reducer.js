@@ -1,9 +1,13 @@
 /* Holds actions and constants that are related to analysis and move recording. Also updates state on who's turn it is.*/
 import { toMoveNotation } from '../../chess/analysis';
 import { ADD_MOVE } from './actions';
+import { INIT_SQUARES } from '../squares/actions';
 
 export default (state = { moves: [], whiteTurn: true }, action) => {
   switch(action.type) {
+    case INIT_SQUARES: {
+      return Object.assign({}, state, { whiteTurn: true }); 
+    }
     case ADD_MOVE:
       // to chess notation.
       let move = toMoveNotation(action.pieceId, action.toSquareId, action.fromSquareId, action.isTake);

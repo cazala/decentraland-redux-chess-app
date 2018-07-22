@@ -4,6 +4,7 @@ import { Server as WebSocketServer } from 'ws'
 import { connectedClients } from './ConnectedClients'
 import { WebSocketTransport } from 'metaverse-api'
 import RemoteScene from './RemoteScene'
+import store, { unregisterPlayer } from './Store'
 
 const express = require('express')
 const cors = require('cors')
@@ -25,7 +26,10 @@ wss.on('connection', function connection(ws, req) {
 
   connectedClients.add(client)
 
-  ws.on('close', () => connectedClients.delete(client))
+  ws.on('close', () => {
+    connectedClients.delete(client)
+    store.dispatch(unregisterPlayer(client.id))
+  })
 
   console.log(`Client connected at ${req.connection.remoteAddress}`)
 })

@@ -6,11 +6,13 @@ import click from './modules/middleware/click-middleware'
 import squares from './modules/squares/reducer'
 import pieces from './modules/pieces/reducer'
 import game from './modules/game/reducer'
+import match from './modules/match/reducer'
 
 const rootReducer = combineReducers({
   squares: squares, // main ui slice of the state.
   takenPieces: pieces, // taken pieces list.
-  game: game // move recording.
+  game: game, // move recording.
+  match: match // game match status
 })
 
 let composedMiddleware = compose(

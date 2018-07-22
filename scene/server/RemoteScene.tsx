@@ -1,5 +1,5 @@
 import { createElement, ScriptableScene } from 'metaverse-api'
-import store, { squareClick } from './Store'
+import store, { initSquares, squareClick, registerPlayer } from './Store'
 
 const modelsById: { [key: string]: string } = {
   B: 'assets/LP Bishop_White.gltf',
@@ -19,14 +19,36 @@ const modelsById: { [key: string]: string } = {
 const getSquareId = (elementId: string) => elementId.split('-')[0]
 
 export default class Chess extends ScriptableScene {
+  public id: number = Math.random()
+
   sceneDidMount() {
     this.eventSubscriber.on('click', event => {
       const { elementId } = event.data
-      if (elementId != null) {
+      const state = store.getState()
+      const {
+        game: { whiteTurn },
+        match: { playerWhite, playerBlack }
+      } = state
+      if (elementId === 'register-white') {
+        if (!playerBlack) {
+          store.dispatch(initSquares()) // let the first player who registers init the board
+        }
+        store.dispatch(registerPlayer(this.id, true))
+      } else if (elementId === 'register-black') {
+        if (!playerWhite) {
+          store.dispatch(initSquares()) // let the first player who registers init the board
+        }
+        store.dispatch(registerPlayer(this.id, false))
+      } else if (elementId != null) {
+        // players can click squares only on their turn
+        if (whiteTurn && this.id !== playerWhite) return
+        if (!whiteTurn && this.id !== playerBlack) return
+
+        // click on square
         const squareId = getSquareId(elementId)
-        const square = store
-          .getState()
-          .squares.find((square: any) => square.id === squareId)
+        const square = state.squares.find(
+          (square: any) => square.id === squareId
+        )
         store.dispatch(squareClick(square.id, square.pieceId, square.color))
       }
     })
@@ -42,8 +64,47 @@ export default class Chess extends ScriptableScene {
         }}
       >
         {store.getState().squares.map(this.renderSquare)}
+        {this.renderMessage()}
       </entity>
     )
+  }
+
+  renderMessage() {
+    const state = store.getState()
+    const { whiteTurn } = state.game
+    const { playerWhite, playerBlack, status } = state.match
+    const yourTurn =
+      (whiteTurn && playerWhite === this.id) ||
+      (!whiteTurn && playerBlack === this.id)
+    const theirTurn =
+      (whiteTurn && playerBlack === this.id) ||
+      (!whiteTurn && playerWhite === this.id)
+
+    return status === 'checkmate' ? (
+      <text
+        value="Checkmate!"
+        color="#FF0000"
+        position={{ x: 3.5, y: 2, z: 3.5 }}
+        width={3}
+        billboard={7}
+      />
+    ) : yourTurn ? (
+      <text
+        value="It's your turn!"
+        color="#000000"
+        position={{ x: 3.5, y: 2, z: 3.5 }}
+        width={2}
+        billboard={7}
+      />
+    ) : theirTurn ? (
+      <text
+        value="It's your opponent's turn"
+        color="#AAAAAA"
+        position={{ x: 3.5, y: 2, z: 3.5 }}
+        width={2}
+        billboard={7}
+      />
+    ) : null
   }
 
   renderSquare(square: any, index: number) {
@@ -52,7 +113,7 @@ export default class Chess extends ScriptableScene {
     const z = Math.floor(index / 8)
     const position = { x, y, z }
 
-    let color = (x + z) % 2 === 0 ? '#FFFFFF' : '#000000'
+    let color = (x + z) % 2 !== 0 ? '#FFFFFF' : '#000000'
     if (square.selected) {
       color = '#7FFF00'
     } else if (square.highlighted) {
@@ -76,7 +137,37 @@ export default class Chess extends ScriptableScene {
     )
   }
 
+  renderIdle() {
+    const { playerWhite, playerBlack } = store.getState().match
+    return (
+      <entity>
+        <gltf-model
+          src={modelsById['Q']}
+          id="register-white"
+          position={{ x: 3.5, y: playerWhite ? 1 : 0, z: 5 }}
+        />
+        <gltf-model
+          src={modelsById['q']}
+          id="register-black"
+          position={{ x: 6.5, y: playerBlack ? 1 : 0, z: 5 }}
+        />
+        <text
+          value="Choose your color"
+          color="#000000"
+          position={{ x: 5, y: 2, z: 5 }}
+          width={3}
+          billboard={7}
+        />
+      </entity>
+    )
+  }
+
   async render() {
-    return <scene>{this.renderBoard()}</scene>
+    const status = store.getState().match.status
+    return (
+      <scene>
+        {status === 'idle' ? this.renderIdle() : this.renderBoard()}
+      </scene>
+    )
   }
 }

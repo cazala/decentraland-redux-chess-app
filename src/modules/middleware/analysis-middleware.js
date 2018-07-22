@@ -22,7 +22,8 @@ import {
 import {
   addPiece,
   removePiece,
-  checkSquare
+  checkSquare,
+  initSquares
 } from '../../modules/squares/actions'
 import {
   wasKingCastle,
@@ -30,6 +31,7 @@ import {
   getSquaresOfPiece
 } from '../../chess/analysis'
 import engine, { isKingInCheck } from '../../chess/engine'
+import { checkmate } from '../match/actions'
 
 export default store => next => action => {
   switch (action.type) {
@@ -48,6 +50,23 @@ export default store => next => action => {
       if (isKingInCheck(board, !isWhite)) {
         next(checkSquare(getSquaresOfPiece(isWhite ? 'k' : 'K', board)[0]))
         next(checkSquare(action.toSquare))
+        const squares = store.getState().squares
+        const squaresWithPiecesFromPlayerInCheck = squares.filter(
+          square =>
+            square.pieceId !== '_' &&
+            (isWhite ? square.color === 'piece_black' : 'piece_white')
+        )
+        const amountOfValidMoves = squaresWithPiecesFromPlayerInCheck.reduce(
+          (moves, square) =>
+            moves + engine(squares)(square.pieceId)(square.id).length,
+          0
+        )
+        if (amountOfValidMoves === 0) {
+          if (store.getState().match.status === 'started') {
+            next(checkmate())
+            setTimeout(() => next(initSquares()), 10000)
+          }
+        }
       }
       break
     // castling actions need to move the rook as well, dispatch more remove/add piece actions to squares reducer.
