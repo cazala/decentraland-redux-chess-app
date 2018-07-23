@@ -428,7 +428,7 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case INIT_SQUARES:
+   case INIT_SQUARES:
       return initialState
 
     case REGISTER_PLAYER: {
@@ -449,7 +449,17 @@ export default (state = initialState, action) => {
 }
 ```
 
-So in this part of the state we will keep the game `status`, which can be `idle`, `started` or `checkmate`. We will also store the `id` of the clients that are using either the black pieces or the white ones. The already existing `INIT_SQUARES` action will reset to the initial state, and now we will see how to handle each of the new actions, starting with registering the players:
+In this part of the state we will keep track of the game `status`, which can be `idle`, `started` or `checkmate`. We will also store the `id` of the clients that are using either the black pieces or the white ones. Below we will see how to handle each of the possible actions. We'll start by the action of resetting to the initial state, which is already defined:
+
+```js
+    case INIT_SQUARES:
+      return initialState
+```
+
+The `INIT_SQUARES` action is quite simple, it just resets the state to its default values.
+
+Let's look at the action of registering a new player into the game:
+
 
 ```js
 case REGISTER_PLAYER: {
@@ -482,13 +492,11 @@ case REGISTER_PLAYER: {
 }
 ```
 
-If both players are already registered, we will ignore this action.
+If both players are already registered, we will ignore this action. If this player id is already registered as the white or the black player, we will also ignore this action.
 
-If this player is already registered, we will ignore this action.
+We then check the value of `action.isWhite` to know with which color to register the new client. Once there are two clients registered and occupying the roles of the white and the black players, we change the `status` to `started`.
 
-We check the `action.isWhite` to know to which player register this client, and if both players have registered we can change the `status` to `started`.
-
-And that's all we have to do to register a player. Now let's see how to unregister them:
+And that's all we have to do to register the players for the game. Now let's see how to unregister them:
 
 ```js
 case UNREGISTER_PLAYER: {
@@ -499,9 +507,9 @@ case UNREGISTER_PLAYER: {
 }
 ```
 
-We just check if the client that wants to unregister is one of the players, and if so, we reset the game to the `idle` state.
+We just check if the client that wants to unregister is one of the two active players, and if so, we reset the entire game to the `idle` state.
 
-Finally, we handle the "checkmate":
+Finally, we handle the "checkmate" action:
 
 ```js
 case CHECKMATE: {
@@ -514,7 +522,7 @@ case CHECKMATE: {
 }
 ```
 
-So now our server is capable of registering which players are playing. We can plug this new reducer into our store (this is `src/store`):
+So now our server is capable of registering which players are currently playing. We can plug this new reducer into our store (this is `src/store`):
 
 ```diff
  import squares from './modules/squares/reducer'
@@ -530,7 +538,7 @@ So now our server is capable of registering which players are playing. We can pl
  })
 ```
 
-The last thing we need to do on the redux side is modifying the Analysis Middleware to handle the "checkmate":
+The last thing we need to do on the Redux side is to modify the Analysis Middleware to handle the "checkmate" action:
 
 ```diff
 // src/modules/middleware/analysis-middleware.js
@@ -575,7 +583,7 @@ import {
        }
 ```
 
-Basically what we do is, after detecting a king is in check, we filter all squares with pieces from the player who's in check:
+Basically, what our code is doing here is, after detecting that a king is in check, we filter all squares with pieces from the player who's in check:
 
 ```js
 const squares = store.getState().squares
@@ -586,7 +594,7 @@ const squaresWithPiecesFromPlayerInCheck = squares.filter(
 )
 ```
 
-Then we run the game engine on all those squares, and compute the amount of valid moves that the player has:
+Then we run the game engine on all those squares, and compute the amount of valid moves that the player has left:
 
 ```js
 const amountOfValidMoves = squaresWithPiecesFromPlayerInCheck.reduce(
@@ -595,7 +603,7 @@ const amountOfValidMoves = squaresWithPiecesFromPlayerInCheck.reduce(
 )
 ```
 
-If the amount is 0, then we know it is a checkmate, so we can dispatch a `checkmate()` action, followed by a game reset 10 seconds later:
+If the amount of valid moves is 0, then we know the player is in checkmate, so we can dispatch a `checkmate()` action, followed by a game reset 10 seconds later:
 
 ```js
 if (amountOfValidMoves === 0) {
@@ -606,9 +614,7 @@ if (amountOfValidMoves === 0) {
 }
 ```
 
-And that's all we had to do on the redux side, so let's go back to the server (`scene/server`)
-
-Let's modify the `Server.ts` so it dispatches an `unregisterPlayer()` action when a client disconects:
+And that's all we had to do on the Redux side! Let's go back to the server in (`scene/server`) and modify the `Server.ts` file so that it dispatches an `unregisterPlayer()` action when a client disconects:
 
 ```diff
 // scene/server/Server.ts
@@ -628,9 +634,9 @@ import RemoteScene from './RemoteScene'
 +  })
 ```
 
-Finally we need to modify `RemoteScene.tsx` to handle both game states (game started or idle), allow user registration, and prevent users from playing when it's not their turn.
+Finally, we need to modify `RemoteScene.tsx` to handle both game states (`game started` and `idle`), allow user registration, and prevent users from playing when it's not their turn.
 
-The first thing we need to do is to add an `id` to each client (this will be used as the player id), that we will genereate randomly:
+The first thing we need to do is to add an `id` to each client (this will be used as the player id), we will genereate this id randomly:
 
 ```diff
 export default class Chess extends ScriptableScene {
@@ -650,9 +656,9 @@ async render() {
 }
 ```
 
-That will read the game `status` from the redux store and render either the `idle` state or the board.
+That will read the game `status` from the Redux store and render either the `idle` state or the board.
 
-We can now define `renderIdle`. We will render a white queen and a black queen on the scene, and a text that reads "Choose your color". We will assign the ids `register-white` and `register-black` to the queens so we can listen to click events on them. When any of the players is registered we will render that queen in `y: 1` (in the air) to indicate that it has been selected already:
+We can now define what we render when the scene is idle in `renderIdle()`. We will render a white queen and a black queen on the scene, and a text that reads "Choose your color". We will assign the ids `register-white` and `register-black` to the queens so we can listen to click events on them. When any of the players is registered, we will render that queen in the position `y: 1` (elevated up in the air) to indicate that it has already been selected by another player:
 
 ```tsx
 renderIdle() {
@@ -681,7 +687,7 @@ renderIdle() {
 }
 ```
 
-Now we only need to modify the `eventSubscriber` to dispatch the register actions and to prevent dispatching the click actions when it's not the player's turn.
+Now we only need to modify the `eventSubscriber` to dispatch the register actions and to prevent dispatching click actions when it's not the player's turn.
 
 First we will read what turn is it (black or white) and both player ids from the state:
 
@@ -695,7 +701,7 @@ this.eventSubscriber.on('click', event => {
   } = state
 ```
 
-Now we can check if it is a click on any of the "register" queen and dispatch a `registerPlayer` action. The first player who registers will also dispatch an `initSquares` to reset the board from a previous game:
+Now we can check if the click has been done on any of the two "register" queens and, if so, dispatch a `registerPlayer` action. The first player who registers will also dispatch an `initSquares` to reset the board from any previous games:
 
 ```tsx
 if (elementId === 'register-white') {
@@ -711,7 +717,7 @@ if (elementId === 'register-white') {
 }
 ```
 
-Finally if the `elementId` doesn't match any of the "register" queens we can dispatch a `squareClick` event, but only after checking that it is this client's turn:
+Finally if the `elementId` doesn't match any of the "register" queens, we can dispatch a `squareClick` event, but only after checking that it is this client's turn:
 
 ```tsx
 } else if (elementId != null) {
@@ -791,7 +797,7 @@ And that's it! Now two players can start a match and play against each other. An
 
 ![chess - multiplayer](https://user-images.githubusercontent.com/2781777/43075877-859114ea-8e58-11e8-88f3-26b8a01bcf53.gif)
 
-Remember you will need to re-build the server and restart it:
+Remember that after making any changes to the code you will need to re-build the server and restart it:
 
 ```bash
 npm run build
