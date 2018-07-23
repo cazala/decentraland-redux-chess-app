@@ -75,7 +75,7 @@ This tutorial assumes you are on a unix machine (or at least using a unix-like t
 
 **Fast-Forward**
 
-Each step in this tutorial has [it's own release](https://github.com/cazala/decentraland-redux-chess-app/releases) on this repo, so you can fast-foward to any step using `git clone` like this:
+Each step in this tutorial has [its own release](https://github.com/cazala/decentraland-redux-chess-app/releases) on this repo, so you can fast-foward to any step using `git clone` like this:
 
 ```bash
 git clone --branch step-0 https://github.com/cazala/decentraland-redux-chess-app.git --depth=1
