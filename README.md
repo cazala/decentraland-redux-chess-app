@@ -10,20 +10,20 @@ The original game is [@zackpudil](https://github.com/zackpudil)'s [redux-chess-a
 
 ## Installation
 
-You will need to have Decentraland's SDK installed. If you haven't installed it yet run this:
+You will need to have Decentraland's SDK installed. If you haven't installed it yet, run this command:
 
 ```bash
 npm install -g decentraland
 ```
 
-Clone the repo
+Then clone the repo from github:
 
 ```bash
 git clone https://github.com/cazala/decentraland-redux-chess-app.git
 cd decentraland-redux-chess-app
 ```
 
-Install the dependencies and build
+Finally, run these commands from the repo's folder to install the dependencies and build it:
 
 ```bash
 npm install
@@ -34,38 +34,39 @@ npm install
 npm run build
 ```
 
-Now in one terminal start the server (run this from `decentraland-redux-chess-app/scene/server`):
+## Preview the scene
+
+Once you've installed everything, you can see the scene in action. Since this is a remote scene, a single scene state runs on a separate server. You must first start this server by running the following command from the `decentraland-redux-chess-app/scene/server` directory:
 
 ```
 npm start
 ```
 
-And in a second terminal go to the `decentraland-redux-chess-app/scene` directory and start the SDK preview:
+Let this terminal window keep executing so that the server keeps running. Open a second terminal window and go to the `decentraland-redux-chess-app/scene` directory and start the SDK preview:
 
 ```
-cd ..
 dcl preview
 ```
 
-Your browser should open with our chess scene.
+A new tab in your browser should open with our chess scene.
 
-If you want to play the original chess game, you can go to the root directory (`decentraland-redux-chess-app`) and run this:
+If you want to play the original 2D redux-based chess game that we worked with to build this scene, go to the root directory (`decentraland-redux-chess-app`) and run this:
 
 ```
 npm run server
 ```
 
-Now just open `http://localhost:8080/`.
+Then open a new browser tab and point it to `http://localhost:8080/`.
 
 # Tutorial
 
-The idea of this tutorial is to show you how to take a redux game and port it to Decentraland. The game I chose is [@zackpudil](https://github.com/zackpudil)'s [redux-chess-app](https://github.com/zackpudil/redux-chess-app), which looks like this:
+The idea of this tutorial is to show you how to take an existing redux game and port it to Decentraland. The game I chose is [@zackpudil](https://github.com/zackpudil)'s [redux-chess-app](https://github.com/zackpudil/redux-chess-app), which looks like this:
 
 ![chess - redux](https://user-images.githubusercontent.com/2781777/43051194-472c015e-8dec-11e8-8a71-a352a97953c8.gif)
 
 **Prerequisites**
 
-This tutorial assumes you are on a unix machine (or at least using a unix-like terminal), with `git`, `npm` and Decentraland's SDK installed. If you haven't installed them yet follow these steps:
+This tutorial assumes you are on a unix machine (or at least using a unix-like terminal), with `git`, `npm` and Decentraland's SDK installed. If you haven't installed them yet, follow these steps:
 
 - Install [git](https://git-scm.com/book/en/v1/Getting-Started-Installing-Git).
 
@@ -75,7 +76,7 @@ This tutorial assumes you are on a unix machine (or at least using a unix-like t
 
 **Fast-Forward**
 
-Each step in this tutorial has [its own release](https://github.com/cazala/decentraland-redux-chess-app/releases) on this repo, so you can fast-foward to any step using `git clone` like this:
+Each step in this tutorial is represented on [its own release](https://github.com/cazala/decentraland-redux-chess-app/releases) on this repo, so you can fast-foward to any step using `git clone` like this:
 
 ```bash
 git clone --branch step-0 https://github.com/cazala/decentraland-redux-chess-app.git --depth=1
@@ -85,20 +86,20 @@ Just replace the `step-0` with the step you want to jump to.
 
 # Step 0: Initialize Scene
 
-So the fist step is to clone the repo that we want to port:
+The fist step is to clone the repo from the original redux game that we want to work with:
 
 ```bash
 git clone https://github.com/zackpudil/redux-chess-app
 cd redux-chess-app
 ```
 
-And install its dependencies
+Then install its dependencies by running the following command from the repo's folder:
 
 ```bash
 npm install
 ```
 
-Now we can initialize our decentraland scene. We'll create a `scene` directory and initialize the SDK in it.
+Now we can initialize our decentraland scene in a folder inside this same repo. We'll create a `scene` directory and initialize the SDK in it.
 
 ```bash
 mkdir scene
@@ -108,11 +109,11 @@ dcl init
 
 The SDK will prompt you with a few questions in order to initialize the scene. It will ask you which type of scene is this going to be, **make sure you select Multiplayer** (the third option).
 
-It will also ask you which parcel(s) comprise this scene, if you don't have any parcels it's okay, you can enter any coords like `0,0` since we are running this scene locally.
+It will also ask you which parcel(s) comprise this scene. If you don't have any parcels that's okay, you can enter any coordinates like `0,0` since we are running this scene locally.
 
-Now that we have initialized our scene we are (almost) ready to start porting the game.
+Now that we have initialized our scene, we are (almost) ready to start porting the game.
 
-First, we need to replace the aliased imports to relative ones, because the former ones are not compatible with Decentraland's SDK, like this:
+First, we need to replace the aliased imports with relative ones, because the former ones are not compatible with Decentraland's SDK, like this:
 
 ```diff
 -import { groupMovesByColor } from '~/modules/game/selectors';
@@ -126,13 +127,13 @@ fast-forward command from below:
 
 **Diff:** to see the full diff of changes for this step check [this commit](https://github.com/cazala/decentraland-redux-chess-app/commit/8338a8d99332ae555ce786110480133cd621e9b9).
 
-**Fast-Forward**: to jump to the end of this step run `git clone --branch step-0 https://github.com/cazala/decentraland-redux-chess-app.git --depth=1`
+**Fast-Forward**: to jump to the end of this step, run `git clone --branch step-0 https://github.com/cazala/decentraland-redux-chess-app.git --depth=1`
 
 ---
 
-# Step 1: Port game to Decentraland scene
+# Step 1: Port game to the Decentraland scene
 
-Now we can start porting the chess game to our scene. Inside of the `scene` directory we created on the previous step there's a `server` folder, let's jump there:
+Now we can start porting the chess game to our scene. Inside the `scene` directory that we created on the previous step, there's a `server` folder, let's move into it:
 
 ```bash
 cd server
@@ -184,14 +185,14 @@ mkdir assets
 
 You can get the assets [from here](https://github.com/cazala/decentraland-redux-chess-app/tree/master/scene/assets).
 
-Once all the models have been placed in that folder we can go back to the server
+Once all the models have been placed in that folder, we can go back to the server:
 
 ```
 cd ..
 cd server
 ```
 
-Finally we need to modify `RemoteScene.tsx` so it imports the redux store, gets its state, and uses it to render the board and all the pieces in the scene.
+Finally we need to modify `RemoteScene.tsx` so that it imports the redux store, gets its state, and uses it to render the board and all the pieces in the scene.
 
 So let's start by removing the import of `State.ts` and replace it with `Store.ts`
 
@@ -209,7 +210,7 @@ async render() {
 }
 ```
 
-This will render a `<scene>` and place the board in it, which will be rendered by another method `renderBoard`. So let's define this method:
+This will render the output of the `renderBoard` method. Let's define this method:
 
 ```tsx
 renderBoard() {
@@ -227,9 +228,16 @@ renderBoard() {
 }
 ```
 
-That will render an entity and position it on the scene, and then it will get the redux store's state and we will map the `squares` to another method: `renderSquare`.
+That will render a base entity and position it on the scene, then it will get the `squares` array from the redux store's state and run a `map` operation over it, running the `renderSquare` method for each square.
 
-This method will receive each `square` and its index (that goes from 0 to 63). Each `square` contains the state for a particular tile on the board, for example if it has a piece on it (and which), and also whether or not it is selected, or highlighted or in check. We can use this information to render the board on the scene.
+This method will receive each `square` and its index (which goes from 0 to 63). Each `square` contains the state for a particular tile on the board. The state indicates:
+
+- If there's a chess piece on the tile, and which
+- If the tile is selected
+- If the tile is highlighted
+- If the tile is in check
+
+We can then use this information to render the board on the scene.
 
 The first thing we need to do is convert the 1-dimentional index (0 to 63) into 3D coords (x, y, z).
 
@@ -241,7 +249,7 @@ renderSquare(square: any, index: number) {
   const position = { x, y, z }
 ```
 
-The second thing we have to do is figure out the color of the tile, which will alternate bewtween black and white, unless it is on a special state (highlighted, selected, in check, etc):
+The second thing we have to do is figure out the color of the tile, which will alternate bewtween black and white, unless the tile is in a special state (highlighted, selected or in check):
 
 ```tsx
 let color = (x + z) % 2 === 0 ? '#FFFFFF' : '#000000'
