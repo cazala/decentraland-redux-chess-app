@@ -262,7 +262,11 @@ if (square.selected) {
 }
 ```
 
-When the square is selected we will make it green. If the square is highlighted we compare the `pieceId` against `'_'` because that means "no piece". So if there's no piece that means a square where a player can move to (shown in yellow), and if there's a piece in that square, then it means the player can eat it (highlighted in red). If the square is in check we will make it orange.
+- If the square is selected we make it _green_. 
+- If the square is highlighted we then compare the `pieceId` with the string `'_'` (which means there's no chess piece on that square). 
+   - If there are no pieces on the square, the player can move to it, so we make it _yellow_. 
+   - If there's a piece on the square, the player can eat it, so we make it _red_. 
+   - If the square is in check we will make it _orange_.
 
 Before rendering the actual tile, let's add a `modelsById` map at the top of our file that maps each `pieceId` to the corresponding model, like this:
 
@@ -297,9 +301,9 @@ return (
 )
 ```
 
-We are rendering one `<entity>` in the position we computed before, and inside we are rendering a `<box>` that represents the tile, and if the `square.pieceId` is inside our `modelsById` map, we also render a `<glft-model>` that represents the piece.
+For each square, we are rendering an `<entity>` as a wrapper in its corresponding position, inside this entity we render a `<box>` that represents the tile, and if the `square.pieceId` is inside our `modelsById` map, we also render a `<glft-model>` that represents the piece.
 
-We add `id`s to both the `<box>` and the `<gltf-model>` because we will use them to listen to click events, in order to do that we need to modify the current `eventSubscriber`. Let's start by removing the call to `setState`:
+We add `id`s to both the `<box>` and the `<gltf-model>`. In order to listen for a click event on an entity, the entity must have its own id. To listen for events we need to modify the `eventSubscriber` that was created as part of the default scene, let's start by removing the call to `setState`:
 
 ```diff
 sceneDidMount() {
@@ -318,15 +322,13 @@ if (elementId != null) {
 }
 ```
 
-Now, that `elementId` can have either a `-tile` suffix or a `-piece` suffix. We need to get the `squareId` from that `elementId` by removing the suffix. Let's add this helper function at the top of the file:
+That `elementId` can have either a `-tile` suffix or a `-piece` suffix. We need to get the `squareId` from that `elementId` by removing the suffix. Let's add this helper function at the top of the file:
 
 ```tsx
 const getSquareId = (elementId: string) => elementId.split('-')[0]
 ```
 
-That will take the `elementId`, split it by the dash, and return the first part.
-
-So let's use it to get the `squareId` and dispatch a `squareClick` action:
+This expression takes the string from `elementId`, splits it in two at the `-` character, and returns the first part. Let's use it to get the `squareId` and dispatch a `squareClick` action:
 
 ```tsx
 sceneDidMount() {
@@ -345,21 +347,21 @@ sceneDidMount() {
 
 Now we are all set!
 
-Let's build the server and test it out:
+Let's run a build for the server and test it out:
 
-```
+```bash
 npm run build
 npm start
 ```
 
-That will start our server, so on a different terminal go to the `scene` directory and start the SDK preview
+That will start our server, which we must keep running. On a second terminal window, go to the `scene` directory and start the SDK preview:
 
-```
+```bash
 cd ..
 dcl preview
 ```
 
-Go to `http://localhost:8000` and you should see the board rendered on the screen and should be able to click on the piece to move them, in the same way as the original game!
+On a broswer, open `http://localhost:8000` and you should see the board rendered on the screen, you should be able to click on the piece to move them, in the same way as in the original game!
 
 ![chess - ported](https://user-images.githubusercontent.com/2781777/43051195-4daaa90e-8dec-11e8-9ce1-997e8b86d1b6.gif)
 
@@ -373,11 +375,15 @@ Go to `http://localhost:8000` and you should see the board rendered on the scree
 
 # Step 2: Multiplayer!
 
-It's no fun to play against yourself, so in this last step we will modify the server so it keeps track of which clients are playing, keep the status of the match, and let only the clients who are playing move the pieces (and only let them move their own pieces).
+It's no fun to play against yourself, so in this last step we will modify the server so that it:
+- Keeps track of which clients are playing
+- Keeps track of the status of the match
+- Only lets the clients who are currently playing move the pieces
+- Only let clients move their own pieces
 
-So the first thing we will do is adding a `match` module to the redux game, under `src/modules/match`.
+So the first thing we will do is add a `match` module to the redux game, under `src/modules/match`.
 
-Now let's add three actions: `registerPlayer`, `unregisterPlayer` and `checkmate`:
+In that new module, let's add three actions: `registerPlayer`, `unregisterPlayer` and `checkmate`:
 
 ```js
 // src/modules/match/actions.js
@@ -401,7 +407,7 @@ export const checkmate = () => ({
 })
 ```
 
-And let's add a reducer to handle those actions
+And let's add a reducer to handle those actions:
 
 ```js
 // src/modules/match/reducer.js
