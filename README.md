@@ -107,7 +107,7 @@ cd scene
 dcl init
 ```
 
-The SDK will prompt you with a few questions in order to initialize the scene. It will ask you which type of scene is this going to be, **make sure you select Multiplayer** (the third option).
+The SDK will prompt you with a few questions in order to initialize the scene. It will ask you which type of scene is this going to be, **make sure you select Remote** (the third option).
 
 It will also ask you which parcel(s) comprise this scene. If you don't have any parcels that's okay, you can enter any coordinates like `0,0` since we are running this scene locally.
 
