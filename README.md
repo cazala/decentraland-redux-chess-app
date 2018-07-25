@@ -753,44 +753,47 @@ For this we will add a `renderMessage` method and call it from `renderBoard`:
        </entity>
      )
    }
+```
 
-+  renderMessage() {
-+    const state = store.getState()
-+    const { whiteTurn } = state.game
-+    const { playerWhite, playerBlack, status } = state.match
-+    const yourTurn =
-+      (whiteTurn && playerWhite === this.id) ||
-+      (!whiteTurn && playerBlack === this.id)
-+    const theirTurn =
-+      (whiteTurn && playerBlack === this.id) ||
-+      (!whiteTurn && playerWhite === this.id)
-+
-+    return status === 'checkmate' ? (
-+      <text
-+        value="Checkmate!"
-+        color="#FF0000"
-+        position={{ x: 3.5, y: 2, z: 3.5 }}
-+        width={3}
-+        billboard={7}
-+      />
-+    ) : yourTurn ? (
-+      <text
-+        value="It's your turn!"
-+        color="#000000"
-+        position={{ x: 3.5, y: 2, z: 3.5 }}
-+        width={2}
-+        billboard={7}
-+      />
-+    ) : theirTurn ? (
-+      <text
-+        value="It's your opponent's turn"
-+        color="#AAAAAA"
-+        position={{ x: 3.5, y: 2, z: 3.5 }}
-+        width={2}
-+        billboard={7}
-+      />
-+    ) : null
-+  }
+And we will define `renderMessage` as this:
+
+```jsx
+renderMessage() {
+  const state = store.getState()
+  const { whiteTurn } = state.game
+  const { playerWhite, playerBlack, status } = state.match
+  const yourTurn =
+    (whiteTurn && playerWhite === this.id) ||
+    (!whiteTurn && playerBlack === this.id)
+  const theirTurn =
+    (whiteTurn && playerBlack === this.id) ||
+    (!whiteTurn && playerWhite === this.id
+  return status === 'checkmate' ? (
+    <text
+      value="Checkmate!"
+      color="#FF0000"
+      position={{ x: 3.5, y: 2, z: 3.5 }}
+      width={3}
+      billboard={7}
+    />
+  ) : yourTurn ? (
+    <text
+      value="It's your turn!"
+      color="#000000"
+      position={{ x: 3.5, y: 2, z: 3.5 }}
+      width={2}
+      billboard={7}
+    />
+  ) : theirTurn ? (
+    <text
+      value="It's your opponent's turn"
+      color="#AAAAAA"
+      position={{ x: 3.5, y: 2, z: 3.5 }}
+      width={2}
+      billboard={7}
+    />
+  ) : null
+}
 ```
 
 And that's it! Now two players can start a match and play against each other. Any other connected client will be able to see the game but they won't be able to move any piece:
